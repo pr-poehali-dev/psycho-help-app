@@ -32,6 +32,11 @@ const Index = () => {
   ]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [completedPractices, setCompletedPractices] = useState(12);
+  const [isPremium, setIsPremium] = useState(false);
+  const [dailyRequestsUsed, setDailyRequestsUsed] = useState(1);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  
+  const FREE_DAILY_LIMIT = 3;
 
   const allPractices: Practice[] = [
     {
@@ -85,7 +90,13 @@ const Index = () => {
   ];
 
   const analyzeProblem = () => {
+    if (!isPremium && dailyRequestsUsed >= FREE_DAILY_LIMIT) {
+      setShowPricingModal(true);
+      return;
+    }
+    
     setIsAnalyzing(true);
+    setDailyRequestsUsed(dailyRequestsUsed + 1);
     
     setTimeout(() => {
       const keywords = problem.toLowerCase();
@@ -136,6 +147,37 @@ const Index = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Ваш личный помощник в работе с эмоциями и психологическим состоянием
           </p>
+        </div>
+
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Badge
+              variant={isPremium ? "default" : "secondary"}
+              className="px-4 py-2 text-sm font-medium flex items-center gap-2"
+            >
+              {isPremium ? (
+                <>
+                  <Icon name="Crown" size={16} className="text-yellow-400" />
+                  Premium
+                </>
+              ) : (
+                <>
+                  <Icon name="Zap" size={16} />
+                  Бесплатно: {dailyRequestsUsed}/{FREE_DAILY_LIMIT} сегодня
+                </>
+              )}
+            </Badge>
+          </div>
+          {!isPremium && (
+            <Button
+              onClick={() => setShowPricingModal(true)}
+              variant="outline"
+              className="flex items-center gap-2 border-2 border-primary/30 hover:border-primary"
+            >
+              <Icon name="Sparkles" size={16} />
+              Попробовать Premium
+            </Button>
+          )}
         </div>
 
         <Tabs defaultValue="home" className="w-full">
@@ -400,6 +442,147 @@ const Index = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {showPricingModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 animate-fade-in">
+            <Card className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 relative animate-scale-in">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-4"
+                onClick={() => setShowPricingModal(false)}
+              >
+                <Icon name="X" size={24} />
+              </Button>
+
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold mb-3">Выберите свой тариф</h2>
+                <p className="text-lg text-muted-foreground">
+                  Получите больше возможностей для работы над собой
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="p-6 border-2 relative">
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon name="Zap" size={24} className="text-muted-foreground" />
+                      <h3 className="text-2xl font-bold">Бесплатный</h3>
+                    </div>
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-4xl font-bold">0 ₽</span>
+                      <span className="text-muted-foreground">навсегда</span>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 mb-6">
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span>3 обращения в день</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span>Базовые практики</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span>Дневник переживаний</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span>Базовая статистика</span>
+                    </li>
+                  </ul>
+
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowPricingModal(false)}
+                  >
+                    Текущий план
+                  </Button>
+                </Card>
+
+                <Card className="p-6 border-2 border-primary bg-gradient-to-br from-primary/5 to-accent/5 relative">
+                  <div className="absolute -top-3 right-6">
+                    <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 px-4 py-1">
+                      Популярный
+                    </Badge>
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon name="Crown" size={24} className="text-primary" />
+                      <h3 className="text-2xl font-bold">Premium</h3>
+                    </div>
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-4xl font-bold">490 ₽</span>
+                      <span className="text-muted-foreground">/ месяц</span>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 mb-6">
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span className="font-medium">Безлимитные обращения</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span className="font-medium">Эксклюзивные практики</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span className="font-medium">Персональные рекомендации</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span className="font-medium">Расширенная аналитика</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span className="font-medium">Экспорт данных</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span className="font-medium">Напоминания о практиках</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon name="Check" size={20} className="text-primary mt-0.5" />
+                      <span className="font-medium">Приоритетная поддержка</span>
+                    </li>
+                  </ul>
+
+                  <Button
+                    className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white border-0"
+                    onClick={() => {
+                      setIsPremium(true);
+                      setShowPricingModal(false);
+                    }}
+                  >
+                    <Icon name="Sparkles" size={18} className="mr-2" />
+                    Попробовать 7 дней бесплатно
+                  </Button>
+                  <p className="text-center text-sm text-muted-foreground mt-3">
+                    Затем 490 ₽/мес. Отмена в любой момент.
+                  </p>
+                </Card>
+              </div>
+
+              <div className="mt-8 p-6 bg-muted/30 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <Icon name="Shield" size={24} className="text-primary mt-1" />
+                  <div>
+                    <h4 className="font-semibold mb-2">Безопасная оплата</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Все платежи защищены. Ваши данные и личная информация в полной безопасности.
+                      7 дней бесплатно, затем подписка продлевается автоматически.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
